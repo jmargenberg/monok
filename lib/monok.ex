@@ -104,23 +104,36 @@ defmodule Monok do
   ## Examples
 
       iex> {:ok, 1}
-      iex> ~> (fn x -> x + 1 end)
+      iex> ~> (fn x-> x + 1 end).()
       {:ok, 2}
 
+      iex> {:ok, "hello"}
+      iex> ~> String.upcase()
+      {:ok, "HELLO"}
+
       iex> {:ok, 1}
-      iex> ~> (fn x -> x + 1 end)
-      iex> ~> (fn x -> x * 2 end)
+      iex> ~> (fn x -> x + 1 end).()
+      iex> ~> (fn x -> x * 2 end).()
       {:ok, 4}
 
       iex> {:error, :reason}
-      iex> ~> (fn x -> x + 1 end)
+      iex> ~> (fn x -> x + 1 end).()
       {:error, :reason}
-
   """
-  defmacro value_tuple ~> function do
-    quote do
-      unquote(value_tuple) |> fmap(unquote(function))
-    end
+  defmacro value_tuple ~> function_ast do
+    handle_fmap_macro(value_tuple, function_ast)
+  end
+
+  def handle_fmap_macro({:ok, value}, {function, metadata, call_args}) do
+    {:ok, {function, metadata, [value | call_args]} |> Macro.expand(__ENV__)}
+  end
+
+  def handle_fmap_macro({:error, reason}, _function_ast) do
+    {:error, reason}
+  end
+
+  def handle_fmap_macro(value_tuple_ast, function_ast) do
+    value_tuple_ast |> Macro.expand(__ENV__) |> handle_fmap_macro(function_ast)
   end
 
   @doc """

@@ -1,7 +1,7 @@
 defmodule Monok do
   @moduledoc """
-  Provides simple functor (`|$>`), applicative (`|*>`) and monad (`|=>`) operators for writing pipelines
-  involving functions that return the common `{:ok, result}` or `{:error, reason}` tuples.
+  Provides simple functor, applicative and monad macros for writing pipelines involving functions
+  that return the common `{:ok, result}` or `{:error, reason}` tuples.
   """
 
   @doc """

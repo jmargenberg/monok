@@ -1,6 +1,6 @@
 # Monok
 
-Provides `|$>`, `|*>` and `|=>` as alternatives to the `|>` operator that act as a simple functor, applicative and mondad operator for `{:ok, result}` and `{:error, reason}` tuples.
+Provides simple functor (`|$>`), applicative (`|*>`) and monad (`|=>`) operators for writing pipelines involving functions that return the common `{:ok, result}` or `{:error, reason}` tuples.
 
 ## Installation
 

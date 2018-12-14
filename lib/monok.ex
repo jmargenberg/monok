@@ -117,8 +117,10 @@ defmodule Monok do
       {:error, :reason}
 
   """
-  def value_tuple ~> function do
-    value_tuple |> fmap(function)
+  defmacro value_tuple ~> function do
+    quote do
+      unquote(value_tuple) |> fmap(unquote(function))
+    end
   end
 
   @doc """
@@ -145,8 +147,10 @@ defmodule Monok do
       iex> <~> {:ok, fn x -> x + 1 end}
       {:error, :reason}
   """
-  def value_tuple <~> function_tuple do
-    value_tuple |> lift(function_tuple)
+  defmacro value_tuple <~> function_tuple do
+    quote do
+      unquote(value_tuple) |> lift(unquote(function_tuple))
+    end
   end
 
   @doc """
@@ -174,7 +178,9 @@ defmodule Monok do
       iex> ~>> (fn x -> {:ok, x + 1} end)
       {:error, :reason}
   """
-  def value_tuple ~>> tuple_function do
-    value_tuple |> bind(tuple_function)
+  defmacro value_tuple ~>> tuple_function do
+    quote do
+      unquote(value_tuple) |> bind(unquote(tuple_function))
+    end
   end
 end

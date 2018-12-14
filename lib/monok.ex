@@ -10,16 +10,16 @@ defmodule Monok do
   ## Examples
 
       iex> {:ok, 1}
-      iex> |> Monok.fmap(fn x -> x + 1 end)
+      iex> |> fmap(fn x -> x + 1 end)
       {:ok, 2}
 
       iex> {:ok, 1}
-      iex> |> Monok.fmap(fn x -> x + 1 end)
-      iex> |> Monok.fmap(fn x -> x * 2 end)
+      iex> |> fmap(fn x -> x + 1 end)
+      iex> |> fmap(fn x -> x * 2 end)
       {:ok, 4}
 
       iex> {:error, :reason}
-      iex> |> Monok.fmap(fn x -> x + 1 end)
+      iex> |> fmap(fn x -> x + 1 end)
       {:error, :reason}
 
   """
@@ -37,20 +37,20 @@ defmodule Monok do
 
   Examples
       iex> {:ok, 1}
-      iex> |> Monok.lift({:ok, fn x -> x + 1 end})
+      iex> |> lift({:ok, fn x -> x + 1 end})
       {:ok, 2}
 
       iex> {:ok, 1}
-      iex> |> Monok.lift({:error, :reason})
+      iex> |> lift({:error, :reason})
       {:error, :reason}
 
       iex> {:ok, 1}
-      iex> |> Monok.lift({:ok, fn x -> x + 1 end})
-      iex> |> Monok.lift({:ok, fn x -> x * 2 end})
+      iex> |> lift({:ok, fn x -> x + 1 end})
+      iex> |> lift({:ok, fn x -> x * 2 end})
       {:ok, 4}
 
       iex> {:error, :reason}
-      iex> |> Monok.lift({:ok, fn x -> x + 1 end})
+      iex> |> lift({:ok, fn x -> x + 1 end})
       {:error, :reason}
   """
   def lift({:ok, value}, {:ok, function}) do
@@ -72,20 +72,20 @@ defmodule Monok do
 
   Examples
       iex> {:ok, 1}
-      iex> |> Monok.bind(fn x -> {:ok, x + 1} end)
+      iex> |> bind(fn x -> {:ok, x + 1} end)
       {:ok, 2}
 
       iex> {:ok, 1}
-      iex> |> Monok.bind(fn _ -> {:error, :reason} end)
+      iex> |> bind(fn _ -> {:error, :reason} end)
       {:error, :reason}
 
       iex> {:ok, 1}
-      iex> |> Monok.bind(fn x -> {:ok, x + 1} end)
-      iex> |> Monok.bind(fn x -> {:ok, x * 2} end)
+      iex> |> bind(fn x -> {:ok, x + 1} end)
+      iex> |> bind(fn x -> {:ok, x * 2} end)
       {:ok, 4}
 
       iex> {:error, :reason}
-      iex> |> Monok.bind(fn x -> {:ok, x + 1} end)
+      iex> |> bind(fn x -> {:ok, x + 1} end)
       {:error, :reason}
   """
   def bind({:ok, value}, function) do

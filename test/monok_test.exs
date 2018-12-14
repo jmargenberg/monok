@@ -1,4 +1,5 @@
 defmodule MonokTest do
   use ExUnit.Case, async: true
-  doctest Monok
+
+  doctest Monok, import: true
 end

@@ -95,4 +95,86 @@ defmodule Monok do
   def bind({:error, reason}, _function) do
     {:error, reason}
   end
+
+  @doc """
+  Infix fmap
+
+  Applies a function to a value wrapped in an ok tuple, has no effect if given an error tuple.
+
+  ## Examples
+
+      iex> {:ok, 1}
+      iex> ~> (fn x -> x + 1 end)
+      {:ok, 2}
+
+      iex> {:ok, 1}
+      iex> ~> (fn x -> x + 1 end)
+      iex> ~> (fn x -> x * 2 end)
+      {:ok, 4}
+
+      iex> {:error, :reason}
+      iex> ~> (fn x -> x + 1 end)
+      {:error, :reason}
+
+  """
+  def value_tuple ~> function do
+    value_tuple |> fmap(function)
+  end
+
+  @doc """
+  Infix lift
+
+  Applies a function wrapped in an :ok tuple to a value wrapped in an :ok tuple, carries through an :error
+  tuple if either the value or function arguments are given as :error tuples instead of :ok tuples.
+
+  Examples
+      iex> {:ok, 1}
+      iex> <~> ({:ok, fn x -> x + 1 end})
+      {:ok, 2}
+
+      iex> {:ok, 1}
+      iex> <~> {:error, :reason}
+      {:error, :reason}
+
+      iex> {:ok, 1}
+      iex> <~> {:ok, fn x -> x + 1 end}
+      iex> <~> {:ok, fn x -> x * 2 end}
+      {:ok, 4}
+
+      iex> {:error, :reason}
+      iex> <~> {:ok, fn x -> x + 1 end}
+      {:error, :reason}
+  """
+  def value_tuple <~> function_tuple do
+    value_tuple |> lift(function_tuple)
+  end
+
+  @doc """
+  Infix bind
+
+  Applies a function that returns a value wrapped in an :ok tuple to a value wrapped in an :ok tuple, carries
+  through an :error tuple if either the value argument is given as an :error tuple or the function returns an
+  :error tuple when applied to the value.
+
+  Examples
+      iex> {:ok, 1}
+      iex> ~>> (fn x -> {:ok, x + 1} end)
+      {:ok, 2}
+
+      iex> {:ok, 1}
+      iex> ~>> (fn _ -> {:error, :reason} end)
+      {:error, :reason}
+
+      iex> {:ok, 1}
+      iex> ~>> (fn x -> {:ok, x + 1} end)
+      iex> ~>> (fn x -> {:ok, x * 2} end)
+      {:ok, 4}
+
+      iex> {:error, :reason}
+      iex> ~>> (fn x -> {:ok, x + 1} end)
+      {:error, :reason}
+  """
+  def value_tuple ~>> tuple_function do
+    value_tuple |> bind(tuple_function)
+  end
 end

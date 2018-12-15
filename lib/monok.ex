@@ -147,28 +147,37 @@ defmodule Monok do
   Applies a function wrapped in an :ok tuple to a value wrapped in an :ok tuple, carries through an :error
   tuple if either the value or function arguments are given as :error tuples instead of :ok tuples.
 
+  Unlike the `~>` and `~>>`, `<~>` is implemented as a function instead of a macro.
+
+  This is because macros were only used for the other infix operators so that they could more closely mimick
+  `|>` in having actuall function calls on their right hand side instead of functions references. e.g. `{:ok, 1}
+   ~> Integer.toString()` instead of `{:ok, 1} ~> &Integer.toString/1`. This would not make send for a lift
+   operator since the function is itself wrapped in an :ok/:error tuple.
+
   Examples
       iex> {:ok, 1}
-      iex> <~> ({:ok, fn x -> x + 1 end})
+      iex> <~> {:ok, &Integer.to_string/1}
+      {:ok, "1"}
+
+      iex> {:ok, 1}
+      iex> <~> {:ok, fn x -> x + 1 end}
       {:ok, 2}
 
       iex> {:ok, 1}
       iex> <~> {:error, :reason}
       {:error, :reason}
 
-      iex> {:ok, 1}
+      iex> {:ok, "1"}
+      iex> <~> {:ok, &String.to_integer/1}
       iex> <~> {:ok, fn x -> x + 1 end}
-      iex> <~> {:ok, fn x -> x * 2 end}
-      {:ok, 4}
+      {:ok, 2}
 
       iex> {:error, :reason}
       iex> <~> {:ok, fn x -> x + 1 end}
       {:error, :reason}
   """
-  defmacro value_tuple <~> function_tuple do
-    quote do
-      unquote(value_tuple) |> lift(unquote(function_tuple))
-    end
+  def value_tuple <~> function_tuple do
+    value_tuple |> lift(function_tuple)
   end
 
   @doc """

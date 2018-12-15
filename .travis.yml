@@ -1,0 +1,11 @@
+language: elixir
+elixir: "1.7.1"
+otp_release: "21.1"
+env:
+  global:
+    - MIX_ENV=test
+script:
+  - mix compile --warnings-as-errors
+  - mix format --check-formatted
+  - mix credo --strict
+  - mix test

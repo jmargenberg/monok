@@ -62,7 +62,7 @@ defmodule MonokTest do
              "function is applied to map literal inside :ok tuple"
     end
 
-    # TODO - uncomment when infinite compilation bug has been fixed
+    # commented out due to infinite compilation bug in ~> macro
     # @tag :complex_input
     # test "with complex :ok tuple input", %{complex_tuple_func: complex_tuple_func} do
     #   assert complex_tuple_func.(:ok, 1)

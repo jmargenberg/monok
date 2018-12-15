@@ -67,7 +67,7 @@ iex> ~>> decrement.()
 
 ## Mixed Pipelines
 
-These pipe operators that don't have to be used in seperate pipelines but can be used in conjuction,
+These alternative pipe operators don't have to be used in seperate pipelines but can be used in conjuction,
 including with the standard `|>` pipe operator.
 
 ```

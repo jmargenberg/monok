@@ -18,12 +18,6 @@ defmodule MonokTest do
   describe "~>" do
     @describetag :infix_operators
 
-    test "with :ok tuple literal as input" do
-      assert {:ok, 1}
-             ~> Integer.to_string() == {:ok, "1"},
-             "function is applied to value inside of :ok tuple"
-    end
-
     test "chain with :ok tuple literal as input" do
       assert {:ok, 1}
              ~> Integer.to_string()
@@ -31,27 +25,18 @@ defmodule MonokTest do
              " functions are applied sequentially to value inside of :ok tuple"
     end
 
-    test "with :error tuple literal as input" do
-      assert {:error, :reason}
-             ~> Integer.to_string() == {:error, :reason},
-             ":error tuple is carried through without the function being "
-    end
-
     test "chain with :error tuple literal as input" do
       assert {:error, :reason}
              ~> Integer.to_string()
              ~> (&(&1 <> "!")).() == {:error, :reason},
-             ":error tuple is carried through without either function being "
-    end
-
-    test "with list literal in :ok tuple literal" do
-      assert {:ok, [1, 2, 3]}
-             ~> Enum.map(fn x -> x + 1 end) == {:ok, [2, 3, 4]},
-             "function is applied to list literal inside :ok tuple"
+             ":error tuple is carried through without either function being applied"
     end
 
     test "chain with list literal in :ok tuple literal" do
-      assert {:ok, [1, 2, 3]} ~> Enum.sum() ~> div(2) == {:ok, 3},
+      assert {:ok, [1, 2, 3]}
+             ~> Enum.map(fn x -> x + 1 end)
+             ~> Enum.sum()
+             ~> div(2) == {:ok, 4},
              "both functions are applied to list literal inside :ok tuple"
     end
 
@@ -66,7 +51,8 @@ defmodule MonokTest do
     # @tag :complex_input
     # test "with complex :ok tuple input", %{complex_tuple_func: complex_tuple_func} do
     #   assert complex_tuple_func.(:ok, 1)
-    #          ~> Integer.to_string() == {:ok, "1"},
+    #          ~> Integer.to_string()
+    #          ~> (&(&1 <> "!")).() == {:ok, "1!"},
     #          "function is applied to value inside of :ok tuple"
     # end
   end

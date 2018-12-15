@@ -7,7 +7,11 @@ defmodule Monok.MixProject do
       version: "0.1.0",
       elixir: "~> 1.7",
       start_permanent: Mix.env() == :prod,
-      deps: deps()
+      deps: deps(),
+
+      # Docs
+      source_url: "https://github.com/jmargenberg/monok",
+      docs: [main: "Monok", extras: ["README.md"]]
     ]
   end
 
@@ -17,7 +21,8 @@ defmodule Monok.MixProject do
 
   defp deps do
     [
-      {:credo, "~> 1.0.0", only: [:dev, :test], runtime: false}
+      {:credo, "~> 1.0.0", only: [:dev, :test], runtime: false},
+      {:ex_doc, "~> 0.19", only: :dev, runtime: false}
     ]
   end
 end

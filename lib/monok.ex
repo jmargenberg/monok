@@ -103,22 +103,27 @@ defmodule Monok do
 
   ## Examples
 
-      iex> {:ok, 1}
-      iex> ~> (fn x-> x + 1 end).()
-      {:ok, 2}
-
-      iex> {:ok, "hello"}
+      iex> {:ok, "hello world!"}
       iex> ~> String.upcase()
-      {:ok, "HELLO"}
-
-      iex> {:ok, 1}
-      iex> ~> (fn x -> x + 1 end).()
-      iex> ~> (fn x -> x * 2 end).()
-      {:ok, 4}
+      {:ok, "HELLO WORLD!"}
 
       iex> {:error, :reason}
-      iex> ~> (fn x -> x + 1 end).()
+      iex> ~> String.upcase()
       {:error, :reason}
+
+      iex> {:ok, [1, 2, 3]}
+      iex> ~> Enum.map(fn x -> x + 1 end)
+      {:ok, [2, 3, 4]}
+
+      iex> {:ok, [1, 2, 3]}
+      iex> ~> Enum.sum()
+      iex> ~> div(2)
+      {:ok, 3}
+
+      iex> {:ok, %{foo: 1}}
+      iex> ~> Map.put(:bar, 2)
+      ~> Map.update(:bar, nil, &(&1 + 2))
+      {:ok, %{foo: 1, bar: 4}}
   """
   defmacro value_tuple ~> function_ast do
     handle_fmap_macro(value_tuple, function_ast)

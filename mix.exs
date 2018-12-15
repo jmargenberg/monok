@@ -11,7 +11,9 @@ defmodule Monok.MixProject do
 
       # Docs
       source_url: "https://github.com/jmargenberg/monok",
-      docs: [main: "Monok", extras: ["README.md"]]
+      docs: [main: "Monok", extras: ["README.md"]],
+      description: "Alternative pipe operators for elegant handling of :ok and :error tuples.",
+      package: package()
     ]
   end
 
@@ -23,6 +25,13 @@ defmodule Monok.MixProject do
     [
       {:credo, "~> 1.0.0", only: [:dev, :test], runtime: false},
       {:ex_doc, "~> 0.19", only: :dev, runtime: false}
+    ]
+  end
+
+  def package do
+    [
+      licenses: ["MIT"],
+      links: %{"GitHub" => "https://github.com/jmargenberg/monok"}
     ]
   end
 end

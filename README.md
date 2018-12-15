@@ -1,4 +1,4 @@
-# Monok
+# Monok [![Build Status](https://travis-ci.org/jmargenberg/monok.svg?branch=master)](https://travis-ci.org/jmargenberg/monok)
 
 **_ NOTE: this library is unfinished and has several unfixed issues, feel free to look through or help out but definitely don't depend on it. _**
 

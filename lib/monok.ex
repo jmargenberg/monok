@@ -122,7 +122,7 @@ defmodule Monok do
 
       iex> {:ok, %{foo: 1}}
       iex> ~> Map.put(:bar, 2)
-      ~> Map.update(:bar, nil, &(&1 + 2))
+      iex> ~> Map.update(:bar, nil, &(&1 + 2))
       {:ok, %{foo: 1, bar: 4}}
   """
   defmacro value_tuple ~> function_ast do

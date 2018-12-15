@@ -217,7 +217,7 @@ defmodule Monok do
   end
 
   defp handle_fmap_macro(value_ast_tuple, function_ast) do
-    Macro.expand(value_ast_tuple, __ENV__) |> handle_fmap_macro(function_ast)
+    value_ast_tuple |> Macro.expand(__ENV__) |> handle_fmap_macro(function_ast)
   end
 
   @doc """

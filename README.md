@@ -1,4 +1,4 @@
-# Monok [![Build Status](https://travis-ci.org/jmargenberg/monok.svg?branch=master)](https://travis-ci.org/jmargenberg/monok)
+# Monok [![Build Status](https://travis-ci.org/jmargenberg/monok.svg?branch=master)](https://travis-ci.org/jmargenberg/monok) [![Coverage Status](https://coveralls.io/repos/github/jmargenberg/monok/badge.svg?branch=master)](https://coveralls.io/github/jmargenberg/monok?branch=master)
 
 **_ NOTE: this library is unfinished and has several unfixed issues, feel free to look through or help out but definitely don't depend on it. _**
 

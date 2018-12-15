@@ -8,6 +8,7 @@ defmodule Monok.MixProject do
       elixir: "~> 1.7",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
+      test_coverage: [tool: ExCoveralls],
 
       # Docs
       source_url: "https://github.com/jmargenberg/monok",
@@ -24,6 +25,7 @@ defmodule Monok.MixProject do
   defp deps do
     [
       {:credo, "~> 1.0.0", only: [:dev, :test], runtime: false},
+      {:excoveralls, "~> 0.10", only: :test},
       {:ex_doc, "~> 0.19", only: :dev, runtime: false}
     ]
   end

@@ -180,25 +180,34 @@ defmodule Monok do
 
   Examples
       iex> {:ok, 1}
-      iex> ~>> (fn x -> {:ok, x + 1} end)
+      iex> ~>> (fn x -> {:ok, x + 1} end).()
       {:ok, 2}
 
       iex> {:ok, 1}
-      iex> ~>> (fn _ -> {:error, :reason} end)
+      iex> ~>> (fn _ -> {:error, :reason} end).()
       {:error, :reason}
 
       iex> {:ok, 1}
-      iex> ~>> (fn x -> {:ok, x + 1} end)
-      iex> ~>> (fn x -> {:ok, x * 2} end)
-      {:ok, 4}
+      iex> ~>> (fn x -> {:ok, x + 1} end).()
+      {:ok, 2}
 
       iex> {:error, :reason}
-      iex> ~>> (fn x -> {:ok, x + 1} end)
+      iex> ~>> (fn x -> {:ok, x + 1} end).()
       {:error, :reason}
   """
-  defmacro value_tuple ~>> tuple_function do
-    quote do
-      unquote(value_tuple) |> bind(unquote(tuple_function))
-    end
+  defmacro value_tuple_ast ~>> function_ast do
+    handle_bind_macro(value_tuple_ast, function_ast)
+  end
+
+  def handle_bind_macro({:ok, value}, {function, metadata, call_args}) do
+    {function, metadata, [value | call_args]}
+  end
+
+  def handle_bind_macro({:error, reason}, _function_ast) do
+    {:error, reason}
+  end
+
+  def handle_bind_macro(value_tuple_ast, function_ast) do
+    value_tuple_ast |> Macro.expand(__ENV__) |> handle_bind_macro(function_ast)
   end
 end

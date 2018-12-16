@@ -177,20 +177,8 @@ defmodule Monok do
       {:error, :reason}
 
   """
-  defmacro value_tuple ~> function do
-    handle_fmap_macro(value_tuple, function)
-  end
-
-  defp handle_fmap_macro({:ok, value}, {function, metadata, call_args}) do
-    {:ok, {function, metadata, [value | call_args]} |> Macro.expand(__ENV__)}
-  end
-
-  defp handle_fmap_macro({:error, reason}, _function_ast) do
-    {:error, reason}
-  end
-
-  defp handle_fmap_macro(value_ast_tuple, function_ast) do
-    value_ast_tuple |> Macro.expand(__ENV__) |> handle_fmap_macro(function_ast)
+  def value_tuple ~> function do
+    value_tuple |> fmap(function)
   end
 
   @doc """
@@ -248,19 +236,7 @@ defmodule Monok do
       iex>  ~>> (fn x -> {:ok, Enum.sum(x)} end).()
       {:error, :reason}
   """
-  defmacro value_tuple ~>> tuple_function do
-    handle_bind_macro(value_tuple, tuple_function)
-  end
-
-  defp handle_bind_macro({:ok, value}, {tuple_function, metadata, call_args}) do
-    {tuple_function, metadata, [value | call_args]}
-  end
-
-  defp handle_bind_macro({:error, reason}, _function_ast) do
-    {:error, reason}
-  end
-
-  defp handle_bind_macro(value_ast_tuple, tuple_function_ast) do
-    value_ast_tuple |> Macro.expand(__ENV__) |> handle_bind_macro(tuple_function_ast)
+  def value_tuple ~>> tuple_function do
+    value_tuple |> bind(tuple_function)
   end
 end

@@ -14,7 +14,7 @@ defmodule MonokTest do
 
   alias MonokTest.Helper
 
-  doctest Monok, import: true, except: [:moduledoc]
+  doctest Monok, import: true
 
   describe "fmap" do
     @tag :standard_functions

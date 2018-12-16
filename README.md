@@ -1,17 +1,17 @@
 # Monok [![Build Status](https://travis-ci.org/jmargenberg/monok.svg?branch=master)](https://travis-ci.org/jmargenberg/monok) [![Coverage Status](https://coveralls.io/repos/github/jmargenberg/monok/badge.svg?branch=master)](https://coveralls.io/github/jmargenberg/monok?branch=master)
 
-**_ NOTE: this library is unfinished and has several unfixed issues, feel free to look through or help out but definitely don't depend on it. _**
+#### _Monad on :ok_
 
-Provides the infix pipe operators `~>`, `~>>`, and `<~>` for writing elegant pipelines that treat the common
-`{:ok, result}` and `{:error, reason}` tuples as simple functors, monads and applicatives.
+Provides the infix pipe operators `~>`, `~>>`, and `<~>` for writing clean pipelines that treat `{:ok, result}`
+and `{:error, reason}` tuples like functors, monads or applicatives.
 
-Also provides the functions `fmap`, `bind` and `lift` as alternative implementations that don't override the
-inifix operators that could potentially conflict with other libraries.
+Also provides the functions `fmap`, `bind` and `lift` as which are functionally identical but are less cryptic and
+can be used without overriding any inifix operators which could potentially conflict with other libraries.
 
-## Why does this exist?
+## Why would you ever do this?
 
-Writing unnecessary macros and overriding infix operators are generally both pretty bad
-ideas but I made this as an exercise in learning basic metaprogramming.
+Whilst writing overriding infix operators is generally considered bad practice I thought I'd try this out
+given just how freqently `{:ok, result}` and `{:error, reason}` tuples are encountered in Elixir.
 
 ## Functor Pipelines
 
@@ -19,8 +19,8 @@ Allows you to write clean pipelines that transforms values inside of `{:ok, valu
 
 ```
 iex> {:ok, [1, 2, 3]}
-iex> ~> Enum.sum()
-iex> ~> div(2)
+...> ~> (&Enum.sum/1)
+...> ~> (&div(&1, 2))
 {:ok, 3}
 ```
 
@@ -29,8 +29,8 @@ transformations.
 
 ```
 iex> {:error, :reason}
-iex> ~> Enum.sum()
-iex> ~> div(2)
+...> ~> (&Enum.sum/1)
+...> ~> (&div(&1, 2))
 {:error, :reason}
 ```
 
@@ -45,8 +45,8 @@ iex> decrement = fn
 ...>   _ -> {:error, :input_too_small}
 ...>  end
 iex> {:ok, 3}
-iex> ~>> decrement.()
-iex> ~>> decrement.()
+...> ~>> decrement
+...> ~>> decrement
 {:ok, 1}
 ```
 
@@ -58,22 +58,31 @@ iex> decrement = fn
 ...>   x when x > 0 -> {:ok, x - 1}
 ...>   _ -> {:error, :input_too_small}
 ...>  end
-iex> {:ok, 3}
-iex> ~>> (fn _ -> {:error, :contrived_example} end).()
-iex> ~>> decrement.()
-iex> ~>> decrement.()
+iex>
+...> {:ok, 3}
+...> ~>> (fn _ -> {:error, :contrived_example} end)
+...> ~>> decrement
+...> ~>> decrement
 {:error, :contrived_example}
 ```
 
 ## Mixed Pipelines
 
-These alternative pipe operators don't have to be used in seperate pipelines but can be used in conjuction,
-including with the standard `|>` pipe operator.
+These pipe operators don't have to be used in seperate pipelines but can be used together or even with the `|>`
+standard pipe operator.
 
 ```
 iex> 7
-iex> |> (&(if &1 > 5, do: {:ok, &1}, else: {:error, :too_low})).()
-iex> ~> Integer.to_string()
-iex> ~>> (&(if &1 |> length() > 0, do: &1 ++ "!", else: {:error, :empty_string})).()
+...> |> (&(if &1 > 5, do: {:ok, &1}, else: {:error, :too_low})).()
+...> ~> (&Integer.to_string/1)
+...> ~>> (&(if &1 |> String.length() > 0, do: {:ok, &1 <> "!"}, else: {:error, :empty_string}))
 {:ok, "7!"}
 ```
+
+## Potential Changes
+
+My initial hope was to implement the operators as macros that would behave more similarily to `|>`.
+For example `{:ok, 1} ~> (&Integer.to_string/1)` could be written as `{:ok, 1} ~> Integer.to_string()`.
+
+Unfortunately it looks like this is infeasible using macros and in elixir but I might try again
+at some point.

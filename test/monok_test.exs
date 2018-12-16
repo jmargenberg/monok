@@ -26,8 +26,24 @@ defmodule MonokTest do
              " functions are applied sequentially to value inside of :ok tuple"
     end
 
+    @tag :complex_tuple
+    test "with complex :ok tuple input" do
+      assert Helper.complex_tuple(:ok, 1)
+             |> fmap(&Integer.to_string/1)
+             |> fmap(&(&1 <> "!")) == {:ok, "1!"},
+             "function is applied to value inside of :ok tuple"
+    end
+
     test "chain with :error tuple literal as input" do
       assert {:error, :reason}
+             |> fmap(&Integer.to_string/1)
+             |> fmap(&(&1 <> "!")) == {:error, :reason},
+             ":error tuple is carried through without either function being applied"
+    end
+
+    @tag :complex_tuple
+    test "chain with complex :error tuple as input" do
+      assert Helper.complex_tuple(:error, :reason)
              |> fmap(&Integer.to_string/1)
              |> fmap(&(&1 <> "!")) == {:error, :reason},
              ":error tuple is carried through without either function being applied"
@@ -48,14 +64,6 @@ defmodule MonokTest do
                {:ok, %{foo: 1, bar: 4}},
              "function is applied to map literal inside :ok tuple"
     end
-
-    @tag :complex_tuple
-    test "with complex :ok tuple input" do
-      assert Helper.complex_tuple(:ok, 1)
-             |> fmap(&Integer.to_string/1)
-             |> fmap(&(&1 <> "!")) == {:ok, "1!"},
-             "function is applied to value inside of :ok tuple"
-    end
   end
 
   describe "~>" do
@@ -68,8 +76,24 @@ defmodule MonokTest do
              " functions are applied sequentially to value inside of :ok tuple"
     end
 
+    @tag :complex_tuple
+    test "with complex :ok tuple input" do
+      assert Helper.complex_tuple(:ok, 1)
+             ~> (&Integer.to_string/1)
+             ~> (&(&1 <> "!")) == {:ok, "1!"},
+             "function is applied to value inside of :ok tuple"
+    end
+
     test "chain with :error tuple literal as input" do
       assert {:error, :reason}
+             ~> (&Integer.to_string/1)
+             ~> (&(&1 <> "!")) == {:error, :reason},
+             ":error tuple is carried through without either function being applied"
+    end
+
+    @tag :complex_tuple
+    test "chain with complex :error tuple as input" do
+      assert Helper.complex_tuple(:error, :reason)
              ~> (&Integer.to_string/1)
              ~> (&(&1 <> "!")) == {:error, :reason},
              ":error tuple is carried through without either function being applied"
@@ -88,14 +112,6 @@ defmodule MonokTest do
              ~> (&Map.put(&1, :bar, 2))
              ~> (&Map.update(&1, :bar, nil, fn x -> x + 2 end)) == {:ok, %{foo: 1, bar: 4}},
              "function is applied to map literal inside :ok tuple"
-    end
-
-    @tag :complex_tuple
-    test "with complex :ok tuple input" do
-      assert Helper.complex_tuple(:ok, 1)
-             ~> (&Integer.to_string/1)
-             ~> (&(&1 <> "!")) == {:ok, "1!"},
-             "function is applied to value inside of :ok tuple"
     end
   end
 

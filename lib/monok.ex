@@ -225,15 +225,15 @@ defmodule Monok do
   ## Examples
 
       iex> {:ok, [1, 2, 3]}
-      iex> ~>> (fn x -> {:ok, Enum.sum(x)} end).()
+      iex> ~>> (fn x -> {:ok, Enum.sum(x)} end)
       {:ok, 6}
 
       iex> {:ok, [1, 2, 3]}
-      iex>  ~>> (fn _ -> {:error, :reason} end).()
+      iex>  ~>> (fn _ -> {:error, :reason} end)
       {:error, :reason}
 
       iex> {:error, :reason}
-      iex>  ~>> (fn x -> {:ok, Enum.sum(x)} end).()
+      iex>  ~>> (fn x -> {:ok, Enum.sum(x)} end)
       {:error, :reason}
   """
   def value_tuple ~>> tuple_function do

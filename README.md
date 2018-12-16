@@ -81,8 +81,9 @@ iex> 7
 
 ## Potential Changes
 
-My initial hope was to implement the operators as macros that would behave more similarily to `|>`.
-For example `{:ok, 1} ~> (&Integer.to_string/1)` could be written as `{:ok, 1} ~> Integer.to_string()`.
+My initial hope was to implement the pipe operators as macros that would behave more similarily to `|>`.
 
-Unfortunately it looks like this is infeasible using macros and in elixir but I might try again
+For example `{:ok, 1} ~> (&Integer.to_string/1)` would be written as `{:ok, 1} ~> Integer.to_string()`.
+
+Unfortunately it looks like this is infeasible using macros in elixir but I might have another try
 at some point.

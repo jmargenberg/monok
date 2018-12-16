@@ -13,7 +13,8 @@ defmodule Monok.MixProject do
       # Docs
       source_url: "https://github.com/jmargenberg/monok",
       docs: [main: "Monok", extras: ["README.md"]],
-      description: "Alternative pipe operators for elegant handling of :ok and :error tuples.",
+      description:
+        "Alternative pipe operators for clean handling of `{:ok, value}` and `{:error, reason}` tuples.",
       package: package()
     ]
   end

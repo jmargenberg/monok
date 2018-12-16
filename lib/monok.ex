@@ -169,11 +169,11 @@ defmodule Monok do
   ## Examples
 
       iex> {:ok, [1, 2, 3]}
-      iex> ~> Enum.sum()
+      iex> ~> &Enum.sum/1
       {:ok, 6}
 
       iex> {:error, :reason}
-      iex> ~> Enum.sum()
+      iex> ~> &Enum.sum/1
       {:error, :reason}
 
   """

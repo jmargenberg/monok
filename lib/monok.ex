@@ -1,12 +1,12 @@
 defmodule Monok do
   @moduledoc """
-  *** NOTE: this library is unfinished and has several unfixed issues, feel free to look through or help out but definitely don't depend on it. ***
+  *** NOTE: this library is unfinished and has several unfixed issues. Feel free to look through or help out but definitely don't depend on it. ***
 
   Provides the infix pipe operators `~>`, `~>>`, and `<~>` for writing elegant pipelines that treat the common
   `{:ok, result}` and `{:error, reason}` tuples as simple functors, monads and applicatives.
 
-  Also provides the functions `fmap`, `bind` and `lift` as alternative implementations that don't override the
-  inifix operators that could potentially conflict with other libraries.
+  Also provides the functions `Monok.fmap`, `Monok.bind` and `Monok.lift` as alternative implementations that are a lot less
+  cryptic and don't override the inifix operators, potentially conflicting with other libraries.
 
   ## Why does this exist?
   Writing unnecessary macros and overriding infix operators are generally both pretty bad
@@ -80,19 +80,13 @@ defmodule Monok do
 
   ## Examples
 
-      iex> {:ok, 1}
-      iex> |> fmap(fn x -> x + 1 end)
-      {:ok, 2}
-
-      iex> {:ok, 1}
-      iex> |> fmap(fn x -> x + 1 end)
-      iex> |> fmap(fn x -> x * 2 end)
-      {:ok, 4}
+      iex> {:ok, [1, 2, 3]}
+      iex> |> Monok.fmap(&Enum.sum/1)
+      {:ok, 6}
 
       iex> {:error, :reason}
-      iex> |> fmap(fn x -> x + 1 end)
+      iex> |> Monok.fmap(&Enum.sum/1)
       {:error, :reason}
-
   """
   def fmap(value_tuple, function)
 
@@ -110,21 +104,17 @@ defmodule Monok do
   Carries through an :error tuple if either the value or function arguments are given as :error tuples instead of :ok tuples.
 
   ## Examples
-      iex> {:ok, 1}
-      iex> |> lift({:ok, fn x -> x + 1 end})
-      {:ok, 2}
+
+      iex> {:ok, [1, 2, 3]}
+      iex> |> Monok.lift({:ok, &Enum.sum/1})
+      {:ok, 6}
 
       iex> {:ok, 1}
-      iex> |> lift({:error, :reason})
+      iex> |> Monok.lift({:error, :reason})
       {:error, :reason}
 
-      iex> {:ok, 1}
-      iex> |> lift({:ok, fn x -> x + 1 end})
-      iex> |> lift({:ok, fn x -> x * 2 end})
-      {:ok, 4}
-
       iex> {:error, :reason}
-      iex> |> lift({:ok, fn x -> x + 1 end})
+      iex> |> Monok.lift({:ok, &Enum.sum/1})
       {:error, :reason}
   """
   def lift(value_tuple, function_tuple)
@@ -148,21 +138,17 @@ defmodule Monok do
   :error tuple when applied to the value.
 
   ## Examples
-      iex> {:ok, 1}
-      iex> |> bind(fn x -> {:ok, x + 1} end)
-      {:ok, 2}
 
-      iex> {:ok, 1}
-      iex> |> bind(fn _ -> {:error, :reason} end)
+      iex> {:ok, [1, 2, 3]}
+      iex> |> Monok.bind(fn x -> {:ok, Enum.sum(x)} end)
+      {:ok, 6}
+
+      iex> {:ok, [1, 2, 3]}
+      iex> |> Monok.bind(fn _ -> {:error, :reason} end)
       {:error, :reason}
 
-      iex> {:ok, 1}
-      iex> |> bind(fn x -> {:ok, x + 1} end)
-      iex> |> bind(fn x -> {:ok, x * 2} end)
-      {:ok, 4}
-
       iex> {:error, :reason}
-      iex> |> bind(fn x -> {:ok, x + 1} end)
+      iex> |> Monok.bind(fn x -> {:ok, Enum.sum(x)} end)
       {:error, :reason}
   """
   def bind(value_tuple, function)
@@ -182,27 +168,14 @@ defmodule Monok do
 
   ## Examples
 
-      iex> {:ok, "hello world!"}
-      iex> ~> String.upcase()
-      {:ok, "HELLO WORLD!"}
-
-      iex> {:error, :reason}
-      iex> ~> String.upcase()
-      {:error, :reason}
-
-      iex> {:ok, [1, 2, 3]}
-      iex> ~> Enum.map(fn x -> x + 1 end)
-      {:ok, [2, 3, 4]}
-
       iex> {:ok, [1, 2, 3]}
       iex> ~> Enum.sum()
-      iex> ~> div(2)
-      {:ok, 3}
+      {:ok, 6}
 
-      iex> {:ok, %{foo: 1}}
-      iex> ~> Map.put(:bar, 2)
-      iex> ~> Map.update(:bar, nil, &(&1 + 2))
-      {:ok, %{foo: 1, bar: 4}}
+      iex> {:error, :reason}
+      iex> ~> Enum.sum()
+      {:error, :reason}
+
   """
   defmacro value_tuple ~> function do
     handle_fmap_macro(value_tuple, function)
@@ -236,25 +209,17 @@ defmodule Monok do
    operator since the function is itself wrapped in an :ok/:error tuple.
 
   ## Examples
-      iex> {:ok, 1}
-      iex> <~> {:ok, &Integer.to_string/1}
-      {:ok, "1"}
 
-      iex> {:ok, 1}
-      iex> <~> {:ok, fn x -> x + 1 end}
-      {:ok, 2}
+      iex> {:ok, [1, 2, 3]}
+      iex>  <~> {:ok, &Enum.sum/1}
+      {:ok, 6}
 
       iex> {:ok, 1}
       iex> <~> {:error, :reason}
       {:error, :reason}
 
-      iex> {:ok, "1"}
-      iex> <~> {:ok, &String.to_integer/1}
-      iex> <~> {:ok, fn x -> x + 1 end}
-      {:ok, 2}
-
       iex> {:error, :reason}
-      iex> <~> {:ok, fn x -> x + 1 end}
+      iex> <~> {:ok, &Enum.sum/1}
       {:error, :reason}
   """
   def value_tuple <~> function_tuple do
@@ -270,20 +235,17 @@ defmodule Monok do
   :error tuple when applied to the value.
 
   ## Examples
-      iex> {:ok, 1}
-      iex> ~>> (fn x -> {:ok, x + 1} end).()
-      {:ok, 2}
 
-      iex> {:ok, 1}
-      iex> ~>> (fn _ -> {:error, :reason} end).()
+      iex> {:ok, [1, 2, 3]}
+      iex> ~>> (fn x -> {:ok, Enum.sum(x)} end).()
+      {:ok, 6}
+
+      iex> {:ok, [1, 2, 3]}
+      iex>  ~>> (fn _ -> {:error, :reason} end).()
       {:error, :reason}
 
-      iex> {:ok, 1}
-      iex> ~>> (fn x -> {:ok, x + 1} end).()
-      {:ok, 2}
-
       iex> {:error, :reason}
-      iex> ~>> (fn x -> {:ok, x + 1} end).()
+      iex>  ~>> (fn x -> {:ok, Enum.sum(x)} end).()
       {:error, :reason}
   """
   defmacro value_tuple ~>> tuple_function do

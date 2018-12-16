@@ -260,4 +260,86 @@ defmodule MonokTest do
              "function is applied to map literal inside :ok tuple"
     end
   end
+
+  describe "bind" do
+    @tag :standard_functions
+
+    test "chain with :ok tuple literal as input and functions returning :ok tuples" do
+      assert {:ok, 1}
+             |> bind(&{:ok, Integer.to_string(&1)})
+             |> bind(&{:ok, &1 <> "!"}) == {:ok, "1!"},
+             " functions are applied sequentially to value inside of :ok tuple"
+    end
+
+    @tag :complex_tuple
+    test "chain with complex :ok tuple as input and functions returning :ok tuples" do
+      assert Helper.complex_tuple(:ok, 1)
+             |> bind(&{:ok, Integer.to_string(&1)})
+             |> bind(&{:ok, &1 <> "!"}) == {:ok, "1!"},
+             " functions are applied sequentially to value inside of :ok tuple"
+    end
+
+    test "chain with :error tuple literal as input and functions returning :ok tuples" do
+      assert {:error, :reason}
+             |> bind(&{:ok, Integer.to_string(&1)})
+             |> bind(&{:ok, &1 <> "!"}) == {:error, :reason},
+             ":error tuple is carried through without either function being applied"
+    end
+
+    @tag :complex_tuple
+    test "chain with complex :error tuple as input and functions returning :ok tuples" do
+      assert Helper.complex_tuple(:error, :reason)
+             |> bind(&{:ok, Integer.to_string(&1)})
+             |> bind(&{:ok, &1 <> "!"}) == {:error, :reason},
+             ":error tuple is carried through without either function being applied"
+    end
+
+    test "chain with first function in chain returning :error tuple literal" do
+      assert {:ok, 1}
+             |> bind(fn _ -> {:error, :reason} end)
+             |> bind(&{:ok, &1 <> "!"}) == {:error, :reason},
+             ":error tuple is carried through without the subsequent function being applied"
+    end
+
+    @tag :complex_tuple
+    test "chain with first function in chain returning complex :error tuple as " do
+      assert {:ok, 1}
+             |> bind(fn _ -> Helper.complex_tuple(:error, :reason) end)
+             |> bind(&{:ok, &1 <> "!"}) == {:error, :reason},
+             ":error tuple is carried through without the subsequent function being applied"
+    end
+
+    test "chain with last function in chain returning :error tuple literal" do
+      assert {:ok, 1}
+             |> bind(&{:ok, Integer.to_string(&1)})
+             |> bind(fn _ -> {:error, :reason} end) == {:error, :reason},
+             ":error tuple from last function in chain is returned as result of chain"
+    end
+
+    @tag :complex_tuple
+    test "chain with last function in chain returning complex :error tuple" do
+      assert {:ok, 1}
+             |> bind(&{:ok, Integer.to_string(&1)})
+             |> bind(fn _ -> Helper.complex_tuple(:error, :reason) end) == {:error, :reason},
+             ":error tuple from last function in chain is returned as result of chain"
+    end
+
+    test "chain with list literal in :ok tuple literal" do
+      assert {:ok, [1, 2, 3]}
+             |> bind(&{:ok, Enum.map(&1, fn x -> x + 1 end)})
+             |> IO.inspect()
+             |> bind(&{:ok, Enum.sum(&1)})
+             |> IO.inspect()
+             |> bind(&{:ok, div(&1, 2)}) == {:ok, 4},
+             "both functions are applied to list literal inside :ok tuple"
+    end
+
+    test "chain with map literal in :ok tuple literal" do
+      assert {:ok, %{foo: 1}}
+             |> bind(&{:ok, Map.put(&1, :bar, 2)})
+             |> bind(fn map -> {:ok, Map.update(map, :bar, nil, &(&1 + 2))} end) ==
+               {:ok, %{foo: 1, bar: 4}},
+             "function is applied to map literal inside :ok tuple"
+    end
+  end
 end

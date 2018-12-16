@@ -1,4 +1,5 @@
-# Monok [![Build Status](https://travis-ci.org/jmargenberg/monok.svg?branch=master)](https://travis-ci.org/jmargenberg/monok) [![Coverage Status](https://coveralls.io/repos/github/jmargenberg/monok/badge.svg?branch=master)](https://coveralls.io/github/jmargenberg/monok?branch=master)
+# Monok
+[![Build Status](https://travis-ci.org/jmargenberg/monok.svg?branch=master)](https://travis-ci.org/jmargenberg/monok) [![Coverage Status](https://coveralls.io/repos/github/jmargenberg/monok/badge.svg?branch=master)](https://coveralls.io/github/jmargenberg/monok?branch=master) [![Hex.pm](https://img.shields.io/hexpm/v/monok.svg)](https://hex.pm/packages/monok)
 
 #### _Monad on :ok_
 

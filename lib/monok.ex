@@ -9,8 +9,9 @@ defmodule Monok do
   can be used without overriding any inifix operators which could potentially conflict with other libraries.
 
   ## Why would you ever do this?
-  Whilst writing overriding infix operators is generally considered bad practice I thought I'd try this out
-  given just how freqently `{:ok, result}` and `{:error, reason}` tuples are encountered in Elixir.
+  Whilst writing unnecessary macros and overriding infix operators are both generally considered bad practice I
+  thought I'd try this out given just how freqently `{:ok, result}` and `{:error, reason}` tuples are encountered
+  in Elixir.
 
   ## Functor Pipelines
   Allows you to write clean pipelines that transforms values inside of `{:ok, value}` tuples.
@@ -76,11 +77,8 @@ defmodule Monok do
   ```
 
   ## Potential Changes
-  My initial hope was to implement the operators as macros that would behave more similarily to `|>`.
-  For example `{:ok, 1} ~> (&Integer.to_string/1)` could be written as `{:ok, 1} ~> Integer.to_string()`.
-
-  Unfortunately it looks like this is infeasible using macros and in elixir but I might try again
-  at some point.
+  In their current implementation the ~> and ~>> macros can cause a 'clause cannot match' compiler warnings when the
+  input tuple is given as a tuple literal. I intend to modify these macros in the future to prevent this warning.
   """
 
   @doc """

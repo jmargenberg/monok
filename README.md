@@ -11,8 +11,9 @@ can be used without overriding any inifix operators which could potentially conf
 
 ## Why would you ever do this?
 
-Whilst writing overriding infix operators is generally considered bad practice I thought I'd try this out
-given just how freqently `{:ok, result}` and `{:error, reason}` tuples are encountered in Elixir.
+Whilst writing unnecessary macros and overriding infix operators are both generally considered bad practice I
+thought I'd try this out given just how freqently `{:ok, result}` and `{:error, reason}` tuples are encountered
+in Elixir.
 
 ## Functor Pipelines
 
@@ -20,8 +21,8 @@ Allows you to write clean pipelines that transforms values inside of `{:ok, valu
 
 ```
 iex> {:ok, [1, 2, 3]}
-...> ~> (&Enum.sum/1)
-...> ~> (&div(&1, 2))
+...> ~> Enum.sum()
+...> ~> div(2)
 {:ok, 3}
 ```
 
@@ -30,8 +31,8 @@ transformations.
 
 ```
 iex> {:error, :reason}
-...> ~> (&Enum.sum/1)
-...> ~> (&div(&1, 2))
+...> ~> Enum.sum()
+...> ~> div(2)
 {:error, :reason}
 ```
 
@@ -46,8 +47,8 @@ iex> decrement = fn
 ...>   _ -> {:error, :input_too_small}
 ...>  end
 iex> {:ok, 3}
-...> ~>> decrement
-...> ~>> decrement
+...> ~>> decrement.()
+...> ~>> decrement.()
 {:ok, 1}
 ```
 
@@ -61,9 +62,9 @@ iex> decrement = fn
 ...>  end
 iex>
 ...> {:ok, 3}
-...> ~>> (fn _ -> {:error, :contrived_example} end)
-...> ~>> decrement
-...> ~>> decrement
+...> ~>> (fn _ -> {:error, :contrived_example} end).()
+...> ~>> decrement.()
+...> ~>> decrement.()
 {:error, :contrived_example}
 ```
 
@@ -75,16 +76,7 @@ standard pipe operator.
 ```
 iex> 7
 ...> |> (&(if &1 > 5, do: {:ok, &1}, else: {:error, :too_low})).()
-...> ~> (&Integer.to_string/1)
-...> ~>> (&(if &1 |> String.length() > 0, do: {:ok, &1 <> "!"}, else: {:error, :empty_string}))
+...> ~> Integer.to_string()
+...> ~>> (&(if &1 |> String.length() > 0, do: {:ok, &1 <> "!"}, else: {:error, :empty_string})).()
 {:ok, "7!"}
 ```
-
-## Potential Changes
-
-My initial hope was to implement the pipe operators as macros that would behave more similarily to `|>`.
-
-For example `{:ok, 1} ~> (&Integer.to_string/1)` would be written as `{:ok, 1} ~> Integer.to_string()`.
-
-Unfortunately it looks like this is infeasible using macros in elixir but I might have another try
-at some point.

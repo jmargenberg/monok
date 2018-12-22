@@ -9,16 +9,17 @@ defmodule Monok do
   can be used without overriding any inifix operators which could potentially conflict with other libraries.
 
   ## Why would you ever do this?
-  Whilst writing overriding infix operators is generally considered bad practice I thought I'd try this out
-  given just how freqently `{:ok, result}` and `{:error, reason}` tuples are encountered in Elixir.
+  Whilst writing unnecessary macros and overriding infix operators are both generally considered bad practice I
+  thought I'd try this out given just how freqently `{:ok, result}` and `{:error, reason}` tuples are encountered
+  in Elixir.
 
   ## Functor Pipelines
   Allows you to write clean pipelines that transforms values inside of `{:ok, value}` tuples.
 
   ```
   iex> {:ok, [1, 2, 3]}
-  ...> ~> (&Enum.sum/1)
-  ...> ~> (&div(&1, 2))
+  ...> ~> Enum.sum()
+  ...> ~> div(2)
   {:ok, 3}
   ```
 
@@ -27,8 +28,8 @@ defmodule Monok do
 
   ```
   iex> {:error, :reason}
-  ...> ~> (&Enum.sum/1)
-  ...> ~> (&div(&1, 2))
+  ...> ~> Enum.sum()
+  ...> ~> div(2)
   {:error, :reason}
   ```
 
@@ -42,8 +43,8 @@ defmodule Monok do
   ...>   _ -> {:error, :input_too_small}
   ...>  end
   iex> {:ok, 3}
-  ...> ~>> decrement
-  ...> ~>> decrement
+  ...> ~>> decrement.()
+  ...> ~>> decrement.()
   {:ok, 1}
   ```
 
@@ -57,9 +58,9 @@ defmodule Monok do
   ...>  end
   iex>
   ...> {:ok, 3}
-  ...> ~>> (fn _ -> {:error, :contrived_example} end)
-  ...> ~>> decrement
-  ...> ~>> decrement
+  ...> ~>> (fn _ -> {:error, :contrived_example} end).()
+  ...> ~>> decrement.()
+  ...> ~>> decrement.()
   {:error, :contrived_example}
   ```
 
@@ -70,17 +71,10 @@ defmodule Monok do
   ```
   iex> 7
   ...> |> (&(if &1 > 5, do: {:ok, &1}, else: {:error, :too_low})).()
-  ...> ~> (&Integer.to_string/1)
-  ...> ~>> (&(if &1 |> String.length() > 0, do: {:ok, &1 <> "!"}, else: {:error, :empty_string}))
+  ...> ~> Integer.to_string()
+  ...> ~>> (&(if &1 |> String.length() > 0, do: {:ok, &1 <> "!"}, else: {:error, :empty_string})).()
   {:ok, "7!"}
   ```
-
-  ## Potential Changes
-  My initial hope was to implement the operators as macros that would behave more similarily to `|>`.
-  For example `{:ok, 1} ~> (&Integer.to_string/1)` could be written as `{:ok, 1} ~> Integer.to_string()`.
-
-  Unfortunately it looks like this is infeasible using macros and in elixir but I might try again
-  at some point.
   """
 
   @doc """
@@ -179,16 +173,22 @@ defmodule Monok do
   ## Examples
 
       iex> {:ok, [1, 2, 3]}
-      ...> ~> &Enum.sum/1
+      ...> ~> Enum.sum()
       {:ok, 6}
 
       iex> {:error, :reason}
-      ...> ~> &Enum.sum/1
+      ...> ~> Enum.sum()
       {:error, :reason}
 
   """
-  def value_tuple ~> function do
-    value_tuple |> fmap(function)
+
+  defmacro quote_value_tuple ~> {function, metadata, call_args} do
+    quote generated: true do
+      case unquote(quote_value_tuple) do
+        {:ok, value} -> {:ok, unquote({function, metadata, [quote(do: value) | call_args]})}
+        other -> other
+      end
+    end
   end
 
   @doc """
@@ -231,18 +231,23 @@ defmodule Monok do
   ## Examples
 
       iex> {:ok, [1, 2, 3]}
-      ...> ~>> (fn x -> {:ok, Enum.sum(x)} end)
+      ...> ~>> (fn x -> {:ok, Enum.sum(x)} end).()
       {:ok, 6}
 
       iex> {:ok, [1, 2, 3]}
-      ...>  ~>> (fn _ -> {:error, :reason} end)
+      ...>  ~>> (fn _ -> {:error, :reason} end).()
       {:error, :reason}
 
       iex> {:error, :reason}
-      ...>  ~>> (fn x -> {:ok, Enum.sum(x)} end)
+      ...>  ~>> (fn x -> {:ok, Enum.sum(x)} end).()
       {:error, :reason}
   """
-  def value_tuple ~>> tuple_function do
-    value_tuple |> bind(tuple_function)
+  defmacro quote_value_tuple ~>> {function, metadata, call_args} do
+    quote generated: true do
+      case unquote(quote_value_tuple) do
+        {:ok, value} -> unquote({function, metadata, [quote(do: value) | call_args]})
+        other -> other
+      end
+    end
   end
 end

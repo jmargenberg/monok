@@ -17,8 +17,8 @@ defmodule Monok do
 
   ```
   iex> {:ok, [1, 2, 3]}
-  ...> ~> (&Enum.sum/1)
-  ...> ~> (&div(&1, 2))
+  ...> ~> Enum.sum()
+  ...> ~> div(2)
   {:ok, 3}
   ```
 
@@ -27,8 +27,8 @@ defmodule Monok do
 
   ```
   iex> {:error, :reason}
-  ...> ~> (&Enum.sum/1)
-  ...> ~> (&div(&1, 2))
+  ...> ~> Enum.sum()
+  ...> ~> div(2)
   {:error, :reason}
   ```
 
@@ -70,7 +70,7 @@ defmodule Monok do
   ```
   iex> 7
   ...> |> (&(if &1 > 5, do: {:ok, &1}, else: {:error, :too_low})).()
-  ...> ~> (&Integer.to_string/1)
+  ...> ~> Integer.to_string()
   ...> ~>> (&(if &1 |> String.length() > 0, do: {:ok, &1 <> "!"}, else: {:error, :empty_string}))
   {:ok, "7!"}
   ```
@@ -179,17 +179,38 @@ defmodule Monok do
   ## Examples
 
       iex> {:ok, [1, 2, 3]}
-      ...> ~> &Enum.sum/1
+      ...> ~> Enum.sum()
       {:ok, 6}
 
       iex> {:error, :reason}
-      ...> ~> &Enum.sum/1
+      ...> ~> Enum.sum()
       {:error, :reason}
 
   """
-  def value_tuple ~> function do
-    value_tuple |> fmap(function)
+  # def value_tuple ~> function do
+  #   value_tuple |> fmap(function)
+  # end
+
+  defmacro value_tuple_input ~> {function, metadata, call_args} do
+    quote do
+      case unquote(value_tuple_input) do
+        {:ok, value} -> {:ok, unquote({function, metadata, [quote(do: value) | call_args]})}
+        other -> other
+      end
+    end
   end
+
+  # defp handle_fmap_macro({:ok, value}, {function, metadata, call_args}) do
+  #   {:ok, {function, metadata, [value | call_args]} |> Macro.expand(__ENV__)}
+  # end
+
+  # defp handle_fmap_macro({:error, reason}, _function_ast) do
+  #   {:error, reason}
+  # end
+
+  # defp handle_fmap_macro(value_ast_tuple, function_ast) do
+  #   value_ast_tuple |> Macro.expand(__ENV__) |> handle_fmap_macro(function_ast)
+  # end
 
   @doc """
   Infix lift operator.

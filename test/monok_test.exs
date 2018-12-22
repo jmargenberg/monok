@@ -359,76 +359,76 @@ defmodule MonokTest do
     @tag :infix_operators
     test "chain with :ok tuple literal as input and functions returning :ok tuples" do
       assert {:ok, 1}
-             ~>> (&{:ok, Integer.to_string(&1)})
-             ~>> (&{:ok, &1 <> "!"}) == {:ok, "1!"},
+             ~>> (&{:ok, Integer.to_string(&1)}).()
+             ~>> (&{:ok, &1 <> "!"}).() == {:ok, "1!"},
              " functions are applied sequentially to value inside of :ok tuple"
     end
 
     @tag :complex_tuple
     test "chain with complex :ok tuple as input and functions returning :ok tuples" do
       assert Helper.complex_tuple(:ok, 1)
-             ~>> (&{:ok, Integer.to_string(&1)})
-             ~>> (&{:ok, &1 <> "!"}) == {:ok, "1!"},
+             ~>> (&{:ok, Integer.to_string(&1)}).()
+             ~>> (&{:ok, &1 <> "!"}).() == {:ok, "1!"},
              " functions are applied sequentially to value inside of :ok tuple"
     end
 
     test "chain with :error tuple literal as input and functions returning :ok tuples" do
       assert {:error, :reason}
-             ~>> (&{:ok, Integer.to_string(&1)})
-             ~>> (&{:ok, &1 <> "!"}) == {:error, :reason},
+             ~>> (&{:ok, Integer.to_string(&1)}).()
+             ~>> (&{:ok, &1 <> "!"}).() == {:error, :reason},
              ":error tuple is carried through without either function being applied"
     end
 
     @tag :complex_tuple
     test "chain with complex :error tuple as input and functions returning :ok tuples" do
       assert Helper.complex_tuple(:error, :reason)
-             ~>> (&{:ok, Integer.to_string(&1)})
-             ~>> (&{:ok, &1 <> "!"}) == {:error, :reason},
+             ~>> (&{:ok, Integer.to_string(&1)}).()
+             ~>> (&{:ok, &1 <> "!"}).() == {:error, :reason},
              ":error tuple is carried through without either function being applied"
     end
 
     test "chain with first function in chain returning a :error tuple literal" do
       assert {:ok, 1}
-             ~>> fn _ -> {:error, :reason} end
-             ~>> (&{:ok, &1 <> "!"}) == {:error, :reason},
+             ~>> (fn _ -> {:error, :reason} end).()
+             ~>> (&{:ok, &1 <> "!"}).() == {:error, :reason},
              ":error tuple is carried through without the subsequent function being applied"
     end
 
     @tag :complex_tuple
     test "chain with first function in chain returning a complex :error tuple" do
       assert {:ok, 1}
-             ~>> fn _ -> Helper.complex_tuple(:error, :reason) end
-             ~>> (&{:ok, &1 <> "!"}) == {:error, :reason},
+             ~>> (fn _ -> Helper.complex_tuple(:error, :reason) end).()
+             ~>> (&{:ok, &1 <> "!"}).() == {:error, :reason},
              ":error tuple is carried through without the subsequent function being applied"
     end
 
     test "chain with last function in chain returning a :error tuple literal" do
       assert {:ok, 1}
-             ~>> (&{:ok, Integer.to_string(&1)})
-             ~>> fn _ -> {:error, :reason} end == {:error, :reason},
+             ~>> (&{:ok, Integer.to_string(&1)}).()
+             ~>> (fn _ -> {:error, :reason} end).() == {:error, :reason},
              ":error tuple from last function in chain is returned as result of chain"
     end
 
     @tag :complex_tuple
     test "chain with last function in chain returning a complex :error tuple" do
       assert {:ok, 1}
-             ~>> (&{:ok, Integer.to_string(&1)})
-             ~>> fn _ -> Helper.complex_tuple(:error, :reason) end == {:error, :reason},
+             ~>> (&{:ok, Integer.to_string(&1)}).()
+             ~>> (fn _ -> Helper.complex_tuple(:error, :reason) end).() == {:error, :reason},
              ":error tuple from last function in chain is returned as result of chain"
     end
 
     test "chain with list literal in :ok tuple literal" do
       assert {:ok, [1, 2, 3]}
-             ~>> (&{:ok, Enum.map(&1, fn x -> x + 1 end)})
-             ~>> (&{:ok, Enum.sum(&1)})
-             ~>> (&{:ok, div(&1, 2)}) == {:ok, 4},
+             ~>> (&{:ok, Enum.map(&1, fn x -> x + 1 end)}).()
+             ~>> (&{:ok, Enum.sum(&1)}).()
+             ~>> (&{:ok, div(&1, 2)}).() == {:ok, 4},
              "both functions are applied to list literal inside :ok tuple"
     end
 
     test "chain with map literal in :ok tuple literal" do
       assert {:ok, %{foo: 1}}
-             ~>> (&{:ok, Map.put(&1, :bar, 2)})
-             ~>> fn map -> {:ok, Map.update(map, :bar, nil, &(&1 + 2))} end ==
+             ~>> (&{:ok, Map.put(&1, :bar, 2)}).()
+             ~>> (fn map -> {:ok, Map.update(map, :bar, nil, &(&1 + 2))} end).() ==
                {:ok, %{foo: 1, bar: 4}},
              "function is applied to map literal inside :ok tuple"
     end

@@ -42,8 +42,8 @@ defmodule Monok do
   ...>   _ -> {:error, :input_too_small}
   ...>  end
   iex> {:ok, 3}
-  ...> ~>> decrement
-  ...> ~>> decrement
+  ...> ~>> decrement.()
+  ...> ~>> decrement.()
   {:ok, 1}
   ```
 
@@ -57,9 +57,9 @@ defmodule Monok do
   ...>  end
   iex>
   ...> {:ok, 3}
-  ...> ~>> (fn _ -> {:error, :contrived_example} end)
-  ...> ~>> decrement
-  ...> ~>> decrement
+  ...> ~>> (fn _ -> {:error, :contrived_example} end).()
+  ...> ~>> decrement.()
+  ...> ~>> decrement.()
   {:error, :contrived_example}
   ```
 
@@ -71,7 +71,7 @@ defmodule Monok do
   iex> 7
   ...> |> (&(if &1 > 5, do: {:ok, &1}, else: {:error, :too_low})).()
   ...> ~> Integer.to_string()
-  ...> ~>> (&(if &1 |> String.length() > 0, do: {:ok, &1 <> "!"}, else: {:error, :empty_string}))
+  ...> ~>> (&(if &1 |> String.length() > 0, do: {:ok, &1 <> "!"}, else: {:error, :empty_string})).()
   {:ok, "7!"}
   ```
 
@@ -188,9 +188,9 @@ defmodule Monok do
 
   """
 
-  defmacro quote_calue_tuple ~> {function, metadata, call_args} do
+  defmacro quote_value_tuple ~> {function, metadata, call_args} do
     quote do
-      case unquote(quote_calue_tuple) do
+      case unquote(quote_value_tuple) do
         {:ok, value} -> {:ok, unquote({function, metadata, [quote(do: value) | call_args]})}
         other -> other
       end
@@ -237,18 +237,23 @@ defmodule Monok do
   ## Examples
 
       iex> {:ok, [1, 2, 3]}
-      ...> ~>> (fn x -> {:ok, Enum.sum(x)} end)
+      ...> ~>> (fn x -> {:ok, Enum.sum(x)} end).()
       {:ok, 6}
 
       iex> {:ok, [1, 2, 3]}
-      ...>  ~>> (fn _ -> {:error, :reason} end)
+      ...>  ~>> (fn _ -> {:error, :reason} end).()
       {:error, :reason}
 
       iex> {:error, :reason}
-      ...>  ~>> (fn x -> {:ok, Enum.sum(x)} end)
+      ...>  ~>> (fn x -> {:ok, Enum.sum(x)} end).()
       {:error, :reason}
   """
-  def value_tuple ~>> tuple_function do
-    value_tuple |> bind(tuple_function)
+  defmacro quote_value_tuple ~>> {function, metadata, call_args} do
+    quote do
+      case unquote(quote_value_tuple) do
+        {:ok, value} -> unquote({function, metadata, [quote(do: value) | call_args]})
+        other -> other
+      end
+    end
   end
 end

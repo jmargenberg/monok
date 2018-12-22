@@ -79,8 +79,3 @@ iex> 7
 ...> ~>> (&(if &1 |> String.length() > 0, do: {:ok, &1 <> "!"}, else: {:error, :empty_string})).()
 {:ok, "7!"}
 ```
-
-## Potential Changes
-
-In their current implementation the ~> and ~>> macros can cause a 'clause cannot match' compiler warnings when the
-input tuple is given as a tuple literal. I intend to modify these macros in the future to prevent this warning.

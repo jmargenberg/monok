@@ -187,30 +187,15 @@ defmodule Monok do
       {:error, :reason}
 
   """
-  # def value_tuple ~> function do
-  #   value_tuple |> fmap(function)
-  # end
 
-  defmacro value_tuple_input ~> {function, metadata, call_args} do
+  defmacro quote_calue_tuple ~> {function, metadata, call_args} do
     quote do
-      case unquote(value_tuple_input) do
+      case unquote(quote_calue_tuple) do
         {:ok, value} -> {:ok, unquote({function, metadata, [quote(do: value) | call_args]})}
         other -> other
       end
     end
   end
-
-  # defp handle_fmap_macro({:ok, value}, {function, metadata, call_args}) do
-  #   {:ok, {function, metadata, [value | call_args]} |> Macro.expand(__ENV__)}
-  # end
-
-  # defp handle_fmap_macro({:error, reason}, _function_ast) do
-  #   {:error, reason}
-  # end
-
-  # defp handle_fmap_macro(value_ast_tuple, function_ast) do
-  #   value_ast_tuple |> Macro.expand(__ENV__) |> handle_fmap_macro(function_ast)
-  # end
 
   @doc """
   Infix lift operator.
